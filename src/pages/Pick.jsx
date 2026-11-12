@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { data, heroById, heroEstimate, compsForHero, tz } from '../lib/recommend.js';
-import { TribeChips, Img, TierBadge, CompCard, Empty } from '../ui.jsx';
+import { TribeChips, Img, TierBadge, CompCard, Empty, TribeGroups } from '../ui.jsx';
 
 export function HeroGrid({ onPick, query }) {
   const list = useMemo(() => {
@@ -143,9 +143,7 @@ export default function Pick({ lobby, setLobby, heroId, setHeroId }) {
           {rest.length > 0 && (
             <h3 className="section-title">{fit.length ? '其他可用流派' : '本局可用流派'}（{rest.length}）</h3>
           )}
-          {rest.map((x) => (
-            <CompCard key={x.comp.id} comp={x.comp} reasons={x.reasons} lobby={lobby} />
-          ))}
+          <TribeGroups items={rest} lobby={lobby} />
           <p className="muted tiny">流派打法根据当前版本卡牌效果整理，不代表强度排名。点“怎么玩”展开。</p>
         </section>
       )}

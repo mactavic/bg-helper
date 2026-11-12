@@ -174,3 +174,62 @@ select { background: var(--bg); color: var(--text); border: 1px solid var(--line
   margin-top: 8px; padding: 6px 14px; min-height: 36px; border-radius: 8px;
   border: 1px solid var(--gold); color: var(--gold); font-size: 14px;
 }
+
+/* 看卡牌：带效果的卡牌列表 */
+.card-list { display: flex; flex-direction: column; gap: 6px; }
+.card-row {
+  display: flex; gap: 10px; align-items: flex-start; text-align: left; width: 100%;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px;
+}
+.card-row.on { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; background: #2c2318; }
+.card-row-img { width: 56px; height: 56px; flex: none; object-fit: cover; object-position: 50% 30%; border-radius: 10px; }
+.card-row-head { display: flex; align-items: center; gap: 6px; }
+.card-row-head b { font-size: 15px; }
+.card-row-text { font-size: 13px; line-height: 1.45; margin-top: 2px; }
+.card-row-used { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.check {
+  margin-left: auto; flex: none; width: 22px; height: 22px; border-radius: 50%;
+  border: 1.5px solid var(--line); display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: #1d160d;
+}
+.check.on { background: var(--gold); border-color: var(--gold); }
+
+/* 底部固定匹配栏（在导航栏上方） */
+.has-matchbar { padding-bottom: 76px; }
+.matchbar {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 11;
+  bottom: calc(env(safe-area-inset-bottom) + 64px);
+  width: calc(100% - 16px); max-width: 624px;
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px; cursor: pointer;
+  background: #3a2d1c; border: 1px solid var(--gold); border-radius: 14px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+}
+.matchbar-title { font-size: 14px; font-weight: 700; }
+.matchbar-list { font-size: 12px; color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.matchbar-open { flex: none; font-size: 13px; color: var(--gold); font-weight: 700; }
+
+/* 弹出层 */
+.sheet-mask { position: fixed; inset: 0; z-index: 20; background: rgba(0, 0, 0, 0.55); display: flex; align-items: flex-end; justify-content: center; }
+.sheet {
+  width: 100%; max-width: 640px; max-height: 82vh; display: flex; flex-direction: column;
+  background: var(--bg); border-top: 1px solid var(--gold); border-radius: 18px 18px 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.sheet-head { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.sheet-head .link { margin-left: auto; }
+.sheet-body { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px; overscroll-behavior: contain; }
+
+/* 按种族折叠的流派 */
+.tribe-groups { display: flex; flex-direction: column; gap: 8px; }
+.tribe-group { border-radius: 14px; }
+.tribe-head {
+  width: 100%; display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'name count arrow' 'preview preview preview';
+  align-items: center; gap: 2px 10px; text-align: left; padding: 12px 14px; scroll-margin-top: 64px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+}
+.tribe-group.open .tribe-head { border-color: var(--gold); background: #2c2318; }
+.tribe-name { grid-area: name; font-size: 17px; font-weight: 700; color: var(--gold); }
+.tribe-count { grid-area: count; font-size: 12px; color: var(--muted); }
+.tribe-arrow { grid-area: arrow; font-size: 16px; color: var(--gold); }
+.tribe-preview { grid-area: preview; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tribe-body { padding: 8px 0 4px 8px; border-left: 2px solid var(--gold); margin: 6px 0 4px 6px; }

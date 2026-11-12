@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { data, imgUrl, minionById, tz, compName, compGuide, heroTier, trinketsForComp, POWER_ORDER } from './lib/recommend.js';
+import { data, imgUrl, minionById, tz, compName, compGuide, minionAvailable, heroTier, trinketsForComp, POWER_ORDER } from './lib/recommend.js';
 
 export const TIER_LABEL = ['T0', 'T1', 'T2', 'T3', 'T4'];
 
@@ -77,7 +77,7 @@ export function TrinketRow({ t, why, score }) {
 export function CompCard({ comp, reasons, lobby = [], defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
   const guide = compGuide(comp);
-  const cards = comp.cards.map((k) => ({ ...k, m: minionById.get(k.id) })).filter((k) => k.m);
+  const cards = comp.cards.map((k) => ({ ...k, m: minionById.get(k.id) })).filter((k) => k.m && minionAvailable(k.m, lobby));
   const core = cards.filter((k) => k.status === 'CORE');
   const byTier = {};
   cards.forEach((k) => (byTier[k.m.tier] ??= []).push(k));
@@ -176,6 +176,54 @@ export function CompCard({ comp, reasons, lobby = [], defaultOpen = false }) {
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+/** 按种族折叠的流派列表：先列种族，点开再显示该种族下的流派 */
+export function TribeGroups({ items, lobby = [], defaultOpen = null }) {
+  const groups = [];
+  const idx = new Map();
+  for (const x of items) {
+    const k = x.comp.tribe || 'Neutral';
+    if (!idx.has(k)) {
+      idx.set(k, groups.length);
+      groups.push({ key: k, label: x.comp.tribe ? tz(x.comp.tribe) : '中立', list: [] });
+    }
+    groups[idx.get(k)].list.push(x);
+  }
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="tribe-groups">
+      {groups.map((g) => {
+        const isOpen = open === g.key;
+        return (
+          <div key={g.key} className={'tribe-group' + (isOpen ? ' open' : '')}>
+            <button
+              className="tribe-head"
+              onClick={(e) => {
+                setOpen(isOpen ? null : g.key);
+                if (!isOpen) {
+                  const el = e.currentTarget;
+                  setTimeout(() => el.scrollIntoView({ block: 'start', behavior: 'smooth' }), 0);
+                }
+              }}
+            >
+              <span className="tribe-name">{g.label}</span>
+              <span className="tribe-count">{g.list.length} 个流派</span>
+              <span className="tribe-preview">{g.list.map((x) => compName(x.comp).replace(g.label, '').trim() || compName(x.comp)).join(' · ')}</span>
+              <span className="tribe-arrow">{isOpen ? '▾' : '▸'}</span>
+            </button>
+            {isOpen && (
+              <div className="tribe-body">
+                {g.list.map((x) => (
+                  <CompCard key={x.comp.id} comp={x.comp} reasons={x.reasons} lobby={lobby} />
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

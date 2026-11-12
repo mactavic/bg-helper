@@ -39,8 +39,16 @@ export function heroEstimate(hero, lobby) {
   return { base: hero.stats.avg, est: +(hero.stats.avg + imp).toFixed(2), imp: +imp.toFixed(2) };
 }
 
-/** 阵容是否在本局可用：主种族必须开放（中立阵容总是可用） */
-export const compAvailable = (c, lobby) => !c.tribe || lobby.length === 0 || lobby.includes(c.tribe);
+/** 某张随从本局能不能刷到：中立/全种族总能刷到；多种族的只要有一个种族开放就行 */
+export const minionAvailable = (m, lobby) =>
+  lobby.length === 0 || !m || m.tribes.length === 0 || m.tribes.includes('All') || m.tribes.some((t) => lobby.includes(t));
+
+/** 流派是否在本局可用：主种族开放，并且每张核心卡本局都能刷到 */
+export const compAvailable = (c, lobby) => {
+  if (lobby.length === 0) return true;
+  if (c.tribe && !lobby.includes(c.tribe)) return false;
+  return c.cards.filter((k) => k.status === 'CORE').every((k) => minionAvailable(minionById.get(k.id), lobby));
+};
 
 /**
  * 本局可用流派：不做强度排名，只标出“适合这个英雄”的流派。
@@ -55,9 +63,7 @@ export function compsForHero(hero, lobby) {
       if (c.tribe && hero?.power?.text?.includes(tz(c.tribe))) reasons.push({ text: `英雄技能和${tz(c.tribe)}相关` });
       const imp = c.tribe ? hero?.stats?.tribes?.[c.tribe] : null;
       if (imp != null && imp <= -0.03) reasons.push({ text: `该英雄在有${tz(c.tribe)}的对局均名 ${imp}` });
-      const missing = c.tribes.filter((t) => t !== c.tribe && lobby.length && !lobby.includes(t));
-      if (missing.length) reasons.push({ bad: true, text: `部分卡是${missing.map(tz).join('、')}，本局没开` });
-      return { comp: c, fit: reasons.some((r) => !r.bad), reasons };
+      return { comp: c, fit: reasons.length > 0, reasons };
     })
     .sort((a, b) => b.fit - a.fit || tribeKey(a.comp).localeCompare(tribeKey(b.comp), 'zh') || compName(a.comp).localeCompare(compName(b.comp), 'zh'));
 }
