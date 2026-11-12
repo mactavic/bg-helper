@@ -28,14 +28,32 @@ export default function App() {
     window.scrollTo(0, 0);
   };
   const lobbyValid = lobby.filter((t) => data.tribes.includes(t));
+  const inGame = heroId != null || lobby.length > 0 || picked.length > 0 || cands.length > 0;
+
+  // 开新一局：清空英雄、种族、看卡牌勾选、候选饰品，回到定阵容
+  const newGame = () => {
+    setHeroId(null);
+    setLobby([]);
+    setPicked([]);
+    setCands([]);
+    setTargetId(null);
+    go('pick');
+  };
 
   return (
     <div className="app">
       <header className="top">
-        <div className="brand">酒馆战棋助手</div>
-        <div className="muted tiny">
-          版本 {data.patch} · 单人 · 数据 {data.generatedAt.slice(0, 10)}
+        <div className="grow">
+          <div className="brand">酒馆战棋助手</div>
+          <div className="muted tiny">
+            版本 {data.patch} · 单人 · 数据 {data.generatedAt.slice(0, 10)}
+          </div>
         </div>
+        {inGame && (
+          <button className="btn-new" onClick={newGame}>
+            🔄 开新一局
+          </button>
+        )}
       </header>
       <main>
         {tab === 'pick' && <Pick lobby={lobbyValid} setLobby={setLobby} heroId={heroId} setHeroId={setHeroId} />}

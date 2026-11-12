@@ -57,7 +57,7 @@ export function HeroPanel({ hero, lobby, onChange }) {
             </div>
           )}
           {onChange && (
-            <button className="link" onClick={onChange}>
+            <button className="btn-sm" onClick={onChange}>
               换英雄
             </button>
           )}

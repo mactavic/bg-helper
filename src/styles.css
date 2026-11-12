@@ -165,3 +165,12 @@ select { background: var(--bg); color: var(--text); border: 1px solid var(--line
 .idea { margin: 8px 0 2px; font-size: 14px; }
 .steps { margin: 0; padding-left: 20px; font-size: 13px; }
 .steps li { margin-bottom: 6px; }
+.top { display: flex; align-items: center; gap: 10px; }
+.btn-new {
+  flex: none; padding: 8px 12px; min-height: 38px; border-radius: 10px;
+  background: var(--gold); color: #1d160d; font-weight: 700; font-size: 14px;
+}
+.btn-sm {
+  margin-top: 8px; padding: 6px 14px; min-height: 36px; border-radius: 8px;
+  border: 1px solid var(--gold); color: var(--gold); font-size: 14px;
+}
