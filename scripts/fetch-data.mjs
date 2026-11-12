@@ -42,7 +42,16 @@ async function fetchHsbgPool() {
 }
 
 // ---------- 文本清理 ----------
-const clean = (t) =>
+// 有些卡的中文文本是“说明版 + 数字 + 游戏内计数版”拼在一起，只保留说明版
+const dedupe = (t) => {
+  if (t.length < 16) return t;
+  const head = t.slice(0, 8);
+  const j = t.indexOf(head, 8);
+  if (j > 0 && /\d+$/.test(t.slice(0, j))) return t.slice(0, j).replace(/\d+$/, '');
+  return t;
+};
+const clean = (t) => dedupe(cleanRaw(t));
+const cleanRaw = (t) =>
   (t || '')
     .replace(/\[x\]/g, '')
     .replace(/<\/b>\s*\n\s*/g, '</b> ') // 关键词（如“被动”）后的换行保留为空格

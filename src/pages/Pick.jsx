@@ -118,8 +118,7 @@ export default function Pick({ lobby, setLobby, heroId, setHeroId }) {
   return (
     <div>
       <section className="card">
-        <h3>① 本局种族</h3>
-        <TribeChips value={lobby} onChange={setLobby} />
+        <TribeChips title="① 本局种族" value={lobby} onChange={setLobby} />
       </section>
 
       {hero ? (

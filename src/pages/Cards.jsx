@@ -7,24 +7,20 @@ const TIERS = ['all', 1, 2, 3, 4, 5, 6, 7];
 export default function Cards({ lobby, picked, setPicked }) {
   const [q, setQ] = useState('');
   const [tier, setTier] = useState('all');
+  const [tribe, setTribe] = useState('all'); // 'all' | 'Neutral' | 种族
   const [focusId, setFocusId] = useState(null); // 底部显示效果的卡
   const [sheet, setSheet] = useState(false);
   const openCard = useCardDetail();
 
-  // 本局可用流派里、本局能刷到的卡，以及每张卡用在哪些流派
+  // 本局能刷到的所有随从（包括没被任何流派收录的），以及每张卡用在哪些本局可用流派
   const { cards, usedIn } = useMemo(() => {
     const used = new Map();
     data.comps
       .filter((c) => compAvailable(c, lobby))
-      .forEach((c) =>
-        c.cards
-          .filter((k) => minionAvailable(minionById.get(k.id), lobby))
-          .forEach((k) => (used.get(k.id) || used.set(k.id, []).get(k.id)).push(compName(c))),
-      );
-    const list = [...used.keys()]
-      .map((id) => minionById.get(id))
-      .filter(Boolean)
-      .sort((a, b) => a.tier - b.tier || a.zh.localeCompare(b.zh, 'zh'));
+      .forEach((c) => c.cards.forEach((k) => (used.get(k.id) || used.set(k.id, []).get(k.id)).push(compName(c))));
+    const list = data.minions
+      .filter((m) => minionAvailable(m, lobby))
+      .sort((a, b) => a.tier - b.tier || (used.has(b.id) ? 1 : 0) - (used.has(a.id) ? 1 : 0) || a.zh.localeCompare(b.zh, 'zh'));
     return { cards: list, usedIn: used };
   }, [lobby]);
 
@@ -33,8 +29,11 @@ export default function Cards({ lobby, picked, setPicked }) {
     const s = q.trim().toLowerCase();
     return cards
       .filter((m) => tier === 'all' || m.tier === tier)
+      .filter((m) =>
+        tribe === 'all' ? true : tribe === 'Neutral' ? m.tribes.length === 0 : m.tribes.includes(tribe) || m.tribes.includes('All'),
+      )
       .filter((m) => !s || m.zh.includes(s) || m.en.toLowerCase().includes(s) || m.text.includes(s));
-  }, [cards, q, tier]);
+  }, [cards, q, tier, tribe]);
 
   const ranked = useMemo(() => rankCompsByCards(picked, lobby), [picked, lobby]);
   // 匹配度最高的流派里还没拿到的核心卡 → 在列表里标“缺”
@@ -60,17 +59,29 @@ export default function Cards({ lobby, picked, setPicked }) {
     return () => (document.body.style.overflow = '');
   }, [sheet]);
   useEffect(() => {
+    if (tribe !== 'all' && tribe !== 'Neutral' && lobby.length && !lobby.includes(tribe)) setTribe('all');
+  }, [lobby, tribe]);
+  useEffect(() => {
     if (!ranked.length) setSheet(false);
   }, [ranked.length]);
 
   return (
     <div className={showPanel ? 'has-panel' : ''}>
-      <div className="tierbar">
-        {TIERS.filter((t) => t === 'all' || tiersPresent.has(t)).map((t) => (
-          <button key={t} className={tier === t ? 'on' : ''} onClick={() => setTier(t)}>
-            {t === 'all' ? '全部' : `⭐${t}`}
-          </button>
-        ))}
+      <div className="filterbar">
+        <div className="filter-row">
+          {TIERS.filter((t) => t === 'all' || tiersPresent.has(t)).map((t) => (
+            <button key={t} className={tier === t ? 'on' : ''} onClick={() => setTier(t)}>
+              {t === 'all' ? '全部星级' : `⭐${t}`}
+            </button>
+          ))}
+        </div>
+        <div className="filter-row">
+          {['all', ...(lobby.length ? lobby : data.tribes), 'Neutral'].map((t) => (
+            <button key={t} className={tribe === t ? 'on' : ''} onClick={() => setTribe(t)}>
+              {t === 'all' ? '全部种族' : t === 'Neutral' ? '中立' : tz(t)}
+            </button>
+          ))}
+        </div>
       </div>
       <input className="search" placeholder="搜索卡名 / 效果" value={q} onChange={(e) => setQ(e.target.value)} />
       <p className="muted tiny hint">
@@ -121,7 +132,7 @@ export default function Cards({ lobby, picked, setPicked }) {
                 </button>
               </div>
               <div className="panel-card-text">{focus.text || '（无效果）'}</div>
-              {usedIn.get(focus.id) && <div className="muted tiny">用于：{usedIn.get(focus.id).join('、')}</div>}
+              <div className="muted tiny">{usedIn.get(focus.id) ? `用于：${usedIn.get(focus.id).join('、')}` : '暂无收录的流派'}</div>
             </div>
           )}
           {picked.length > 0 && (

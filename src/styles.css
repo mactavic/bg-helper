@@ -202,15 +202,15 @@ select { background: var(--bg); color: var(--text); border: 1px solid var(--line
 .tribe-body { padding: 8px 0 4px 8px; border-left: 2px solid var(--gold); margin: 6px 0 4px 6px; }
 
 /* 看卡牌：平铺 */
-.tierbar {
+.filterbar {
   position: sticky; top: calc(env(safe-area-inset-top) + 58px); z-index: 9;
-  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
-  margin: -12px -12px 8px; padding: 8px 12px; background: rgba(23, 19, 15, 0.95); backdrop-filter: blur(8px);
+  margin: -12px -12px 8px; padding: 6px 0; background: rgba(23, 19, 15, 0.96); backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line);
 }
-.tierbar::-webkit-scrollbar { display: none; }
-.tierbar button { flex: none; padding: 6px 12px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); font-size: 13px; }
-.tierbar button.on { background: var(--gold); color: #1d160d; border-color: var(--gold); font-weight: 700; }
+.filter-row { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 3px 12px; }
+.filter-row::-webkit-scrollbar { display: none; }
+.filter-row button { flex: none; padding: 5px 12px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); font-size: 13px; }
+.filter-row button.on { background: var(--gold); color: #1d160d; border-color: var(--gold); font-weight: 700; }
 .hint { margin: -4px 2px 8px; }
 .tile-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 @media (min-width: 480px) { .tile-grid { grid-template-columns: repeat(5, 1fr); } }
@@ -283,3 +283,21 @@ select { background: var(--bg); color: var(--text); border: 1px solid var(--line
 .detail-li { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: var(--panel); border-radius: 8px; font-size: 14px; }
 .badge.p-core { background: var(--gold); }
 .badge.p-addon { background: var(--line); color: var(--muted); }
+
+/* 本局种族选择 */
+.tribe-pick-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.tribe-pick-head h3 { margin: 0; flex: 1; }
+.tribe-count-pill { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--panel-2); color: var(--muted); }
+.tribe-count-pill.full { background: var(--gold); color: #1d160d; }
+.tribe-pick-head .link { padding: 4px 0; }
+.tribe-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.tribe-btn {
+  min-height: 42px; padding: 4px 2px; border-radius: 10px; font-size: 14px; line-height: 1.2;
+  background: var(--panel-2); border: 1px solid var(--line); word-break: keep-all;
+}
+.tribe-btn.on { background: var(--gold); color: #1d160d; border-color: var(--gold); font-weight: 700; }
+.tribe-btn.dim { opacity: 0.35; }
+
+.pick-row { position: relative; }
+.pick-check { position: absolute; right: 6px; top: 8px; font-size: 11px; font-weight: 700; color: #1d160d; background: var(--gold); padding: 0 6px; border-radius: 6px; }
+.tribe-body.list { padding-left: 4px; }

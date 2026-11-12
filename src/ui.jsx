@@ -3,27 +3,35 @@ import { data, imgUrl, minionById, tz, compName, compGuide, minionAvailable, her
 
 export const TIER_LABEL = ['T0', 'T1', 'T2', 'T3', 'T4'];
 
-export function TribeChips({ value, onChange, max = 5 }) {
+/** 本局种族选择：5 列网格，选满后未选的变暗 */
+export function TribeChips({ value, onChange, max = 5, title }) {
+  const full = value.length >= max;
   const toggle = (t) => {
     if (value.includes(t)) onChange(value.filter((x) => x !== t));
-    else if (value.length < max) onChange([...value, t]);
+    else if (!full) onChange([...value, t]);
   };
   return (
     <div>
-      <div className="chips">
-        {data.tribes.map((t) => (
-          <button key={t} className={'chip' + (value.includes(t) ? ' on' : '')} onClick={() => toggle(t)}>
-            {tz(t)}
-          </button>
-        ))}
-      </div>
-      <div className="row muted small">
-        已选 {value.length}/{max}
+      <div className="tribe-pick-head">
+        {title && <h3>{title}</h3>}
+        <span className={'tribe-count-pill' + (full ? ' full' : '')}>
+          {value.length}/{max}
+        </span>
         {value.length > 0 && (
           <button className="link" onClick={() => onChange([])}>
             清空
           </button>
         )}
+      </div>
+      <div className="tribe-grid">
+        {data.tribes.map((t) => {
+          const on = value.includes(t);
+          return (
+            <button key={t} className={'tribe-btn' + (on ? ' on' : '') + (full && !on ? ' dim' : '')} onClick={() => toggle(t)}>
+              {tz(t)}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -93,6 +101,7 @@ function CardDetail({ id, onClose }) {
           <span className="chip static">{m.tribes.length ? m.tribes.map(tz).join(' / ') : '中立'}</span>
         </div>
         <div className="detail-text">{m.text || '（无效果）'}</div>
+        {inComps.length === 0 && <p className="muted small">暂无收录这张卡的流派</p>}
         {inComps.length > 0 && (
           <>
             <h4>所属流派</h4>
