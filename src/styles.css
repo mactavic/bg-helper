@@ -175,39 +175,6 @@ select { background: var(--bg); color: var(--text); border: 1px solid var(--line
   border: 1px solid var(--gold); color: var(--gold); font-size: 14px;
 }
 
-/* 看卡牌：带效果的卡牌列表 */
-.card-list { display: flex; flex-direction: column; gap: 6px; }
-.card-row {
-  display: flex; gap: 10px; align-items: flex-start; text-align: left; width: 100%;
-  background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px;
-}
-.card-row.on { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; background: #2c2318; }
-.card-row-img { width: 56px; height: 56px; flex: none; object-fit: cover; object-position: 50% 30%; border-radius: 10px; }
-.card-row-head { display: flex; align-items: center; gap: 6px; }
-.card-row-head b { font-size: 15px; }
-.card-row-text { font-size: 13px; line-height: 1.45; margin-top: 2px; }
-.card-row-used { font-size: 11px; color: var(--muted); margin-top: 3px; }
-.check {
-  margin-left: auto; flex: none; width: 22px; height: 22px; border-radius: 50%;
-  border: 1.5px solid var(--line); display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 800; color: #1d160d;
-}
-.check.on { background: var(--gold); border-color: var(--gold); }
-
-/* 底部固定匹配栏（在导航栏上方） */
-.has-matchbar { padding-bottom: 76px; }
-.matchbar {
-  position: fixed; left: 50%; transform: translateX(-50%); z-index: 11;
-  bottom: calc(env(safe-area-inset-bottom) + 64px);
-  width: calc(100% - 16px); max-width: 624px;
-  display: flex; align-items: center; gap: 8px; padding: 10px 12px; cursor: pointer;
-  background: #3a2d1c; border: 1px solid var(--gold); border-radius: 14px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
-}
-.matchbar-title { font-size: 14px; font-weight: 700; }
-.matchbar-list { font-size: 12px; color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.matchbar-open { flex: none; font-size: 13px; color: var(--gold); font-weight: 700; }
-
 /* 弹出层 */
 .sheet-mask { position: fixed; inset: 0; z-index: 20; background: rgba(0, 0, 0, 0.55); display: flex; align-items: flex-end; justify-content: center; }
 .sheet {
@@ -233,3 +200,86 @@ select { background: var(--bg); color: var(--text); border: 1px solid var(--line
 .tribe-arrow { grid-area: arrow; font-size: 16px; color: var(--gold); }
 .tribe-preview { grid-area: preview; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tribe-body { padding: 8px 0 4px 8px; border-left: 2px solid var(--gold); margin: 6px 0 4px 6px; }
+
+/* 看卡牌：平铺 */
+.tierbar {
+  position: sticky; top: calc(env(safe-area-inset-top) + 58px); z-index: 9;
+  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+  margin: -12px -12px 8px; padding: 8px 12px; background: rgba(23, 19, 15, 0.95); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.tierbar::-webkit-scrollbar { display: none; }
+.tierbar button { flex: none; padding: 6px 12px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); font-size: 13px; }
+.tierbar button.on { background: var(--gold); color: #1d160d; border-color: var(--gold); font-weight: 700; }
+.hint { margin: -4px 2px 8px; }
+.tile-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+@media (min-width: 480px) { .tile-grid { grid-template-columns: repeat(5, 1fr); } }
+.tile {
+  position: relative; cursor: pointer; user-select: none; -webkit-user-select: none;
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 4px 4px 6px;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1px;
+}
+.tile.on { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold) inset; background: #33281a; }
+.tile.need { border-style: dashed; border-color: var(--gold); }
+.tile.focus { outline: 2px solid #9fc4ff; outline-offset: 1px; }
+.tile-img { width: 100%; aspect-ratio: 1; object-fit: cover; object-position: 50% 30%; border-radius: 8px; -webkit-touch-callout: none; pointer-events: none; }
+.tile-name { font-size: 11px; font-weight: 600; line-height: 1.25; }
+.tile-meta { font-size: 10px; color: var(--muted); }
+.tile-info {
+  position: absolute; top: 2px; right: 2px; width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55); color: #fff; font-size: 15px; line-height: 28px;
+}
+.tile-check {
+  position: absolute; top: 4px; left: 4px; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--gold); color: #1d160d; font-size: 13px; font-weight: 800; line-height: 22px;
+}
+.tile-need {
+  position: absolute; top: 4px; left: 4px; padding: 0 5px; border-radius: 6px;
+  background: rgba(0, 0, 0, 0.7); color: var(--gold); font-size: 11px; font-weight: 700; line-height: 18px;
+}
+
+/* 底部扩展栏 */
+.has-panel { padding-bottom: 210px; }
+.panel {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 11;
+  bottom: calc(env(safe-area-inset-bottom) + 62px);
+  width: calc(100% - 12px); max-width: 628px; max-height: 46vh; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 8px; padding: 10px 12px;
+  background: #2a2117; border: 1px solid var(--gold); border-radius: 14px; box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.55);
+}
+.panel-card-head { display: flex; align-items: center; gap: 8px; }
+.panel-card-head b { font-size: 15px; }
+.panel-x { margin-left: auto; width: 28px; height: 28px; color: var(--muted); font-size: 14px; }
+.panel-card-text { font-size: 13px; line-height: 1.45; margin: 2px 0; }
+.panel-picked { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-top: 2px; }
+.panel-picked::-webkit-scrollbar { display: none; }
+.pchip { flex: none; padding: 4px 10px; border-radius: 999px; background: var(--gold); color: #1d160d; font-size: 12px; font-weight: 600; }
+.pchip.clear { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
+.panel-match { display: flex; align-items: center; gap: 8px; text-align: left; width: 100%; border-top: 1px solid var(--line); padding-top: 8px; }
+.panel-match b { display: block; font-size: 14px; }
+.panel-match-list { display: block; font-size: 12px; color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.panel-open { flex: none; color: var(--gold); font-weight: 700; font-size: 13px; }
+
+/* 卡牌详情弹层 */
+.cardname { display: inline; padding: 0; margin-right: 6px; font-size: inherit; text-decoration: underline dotted rgba(227, 167, 59, 0.6); text-underline-offset: 3px; }
+.cardname.core { font-weight: 600; color: var(--text); }
+.cardname.muted { color: var(--muted); }
+.panel-card-name { font-size: 15px; font-weight: 700; color: var(--gold); text-decoration: none; }
+.detail-mask { position: fixed; inset: 0; z-index: 30; background: rgba(0, 0, 0, 0.7); display: flex; align-items: flex-end; justify-content: center; }
+.detail {
+  position: relative; width: 100%; max-width: 520px; max-height: 88vh; overflow-y: auto; overscroll-behavior: contain;
+  background: var(--bg); border-top: 1px solid var(--gold); border-radius: 18px 18px 0 0;
+  padding: 16px 16px calc(env(safe-area-inset-bottom) + 20px); text-align: center;
+}
+@media (min-width: 560px) { .detail-mask { align-items: center; } .detail { border-radius: 18px; border: 1px solid var(--gold); } }
+.detail-x { position: absolute; right: 10px; top: 10px; width: 34px; height: 34px; border-radius: 50%; background: var(--panel-2); color: var(--muted); font-size: 16px; }
+.detail-img { width: 62%; max-width: 240px; display: block; margin: 4px auto 8px; border-radius: 12px; }
+.detail-name { font-size: 20px; font-weight: 800; color: var(--gold); }
+.detail-tags { display: flex; justify-content: center; gap: 6px; margin: 8px 0; }
+.detail-text { font-size: 15px; line-height: 1.55; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; text-align: left; }
+.detail h4 { text-align: left; }
+.detail .trinket { text-align: left; }
+.detail-list { display: flex; flex-direction: column; gap: 4px; text-align: left; }
+.detail-li { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: var(--panel); border-radius: 8px; font-size: 14px; }
+.badge.p-core { background: var(--gold); }
+.badge.p-addon { background: var(--line); color: var(--muted); }

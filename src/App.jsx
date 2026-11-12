@@ -1,6 +1,7 @@
 import React from 'react';
 import { data } from './lib/recommend.js';
 import { useStored } from './lib/store.js';
+import { CardDetailProvider } from './ui.jsx';
 import Pick from './pages/Pick.jsx';
 import Cards from './pages/Cards.jsx';
 import Heroes from './pages/Heroes.jsx';
@@ -41,6 +42,7 @@ export default function App() {
   };
 
   return (
+    <CardDetailProvider>
     <div className="app">
       <header className="top">
         <div className="grow">
@@ -76,5 +78,6 @@ export default function App() {
         ))}
       </nav>
     </div>
+    </CardDetailProvider>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { data, imgUrl, minionById, tz, compName, compGuide, minionAvailable, heroTier, trinketsForComp, POWER_ORDER } from './lib/recommend.js';
 
 export const TIER_LABEL = ['T0', 'T1', 'T2', 'T3', 'T4'];
@@ -46,15 +46,106 @@ export function PowerBadge({ power }) {
   return <span className={'badge p' + power}>{power}</span>;
 }
 
-export function MinionMini({ m, onClick, on, status }) {
+// ---------- 卡牌详情（全站通用弹层） ----------
+const CardCtx = createContext(() => {});
+export const useCardDetail = () => useContext(CardCtx);
+
+export function CardDetailProvider({ children }) {
+  const [id, setId] = useState(null);
+  useEffect(() => {
+    if (id == null) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e) => e.key === 'Escape' && setId(null);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [id]);
   return (
-    <button className={'minion' + (on ? ' on' : '')} onClick={onClick} disabled={!onClick}>
+    <CardCtx.Provider value={setId}>
+      {children}
+      {id != null && <CardDetail id={id} onClose={() => setId(null)} />}
+    </CardCtx.Provider>
+  );
+}
+
+function CardDetail({ id, onClose }) {
+  const m = minionById.get(id);
+  if (!m) return null;
+  const inComps = data.comps
+    .map((c) => ({ c, k: c.cards.find((k) => k.id === id) }))
+    .filter((x) => x.k)
+    .sort((a, b) => (a.k.status === 'CORE' ? 0 : 1) - (b.k.status === 'CORE' ? 0 : 1));
+  const trinkets = data.trinkets.filter((t) => t.mentions.includes(id) || (m.zh.length > 1 && t.text.includes(m.zh)));
+  return (
+    <div className="detail-mask" onClick={onClose}>
+      <div className="detail" onClick={(e) => e.stopPropagation()}>
+        <button className="detail-x" onClick={onClose} aria-label="关闭">
+          ✕
+        </button>
+        <Img src={m.img} alt={m.zh} className="detail-img" />
+        <div className="detail-name">{m.zh}</div>
+        <div className="muted small">{m.en}</div>
+        <div className="detail-tags">
+          <span className="chip static">⭐ {m.tier} 星</span>
+          <span className="chip static">{m.tribes.length ? m.tribes.map(tz).join(' / ') : '中立'}</span>
+        </div>
+        <div className="detail-text">{m.text || '（无效果）'}</div>
+        {inComps.length > 0 && (
+          <>
+            <h4>所属流派</h4>
+            <div className="detail-list">
+              {inComps.map(({ c, k }) => (
+                <div key={c.id} className="detail-li">
+                  <span>{compName(c)}</span>
+                  <span className={'badge ' + (k.status === 'CORE' ? 'p-core' : 'p-addon')}>{k.status === 'CORE' ? '核心' : '配件'}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+        {trinkets.length > 0 && (
+          <>
+            <h4>相关饰品</h4>
+            {trinkets.map((t) => (
+              <TrinketRow key={t.id} t={t} />
+            ))}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** 卡牌小方块：默认点击打开详情 */
+export function MinionMini({ m, onClick, on, status }) {
+  const open = useCardDetail();
+  return (
+    <button className={'minion' + (on ? ' on' : '')} onClick={onClick || (() => open(m.id))}>
       <Img src={m.img} alt={m.zh} className="minion-img" />
       <div className="minion-name">{m.zh}</div>
       <div className="minion-meta">
         ⭐{m.tier} {m.tribes.length ? m.tribes.map(tz).join('/') : '中立'}
         {status && status !== 'CORE' ? <span className="muted"> · 配件</span> : null}
       </div>
+    </button>
+  );
+}
+
+/** 文字里的卡名：点击打开详情 */
+export function CardName({ m, className = '', children }) {
+  const open = useCardDetail();
+  return (
+    <button
+      className={'cardname ' + className}
+      onClick={(e) => {
+        e.stopPropagation();
+        open(m.id);
+      }}
+    >
+      {children ?? m.zh}
     </button>
   );
 }
@@ -147,10 +238,10 @@ export function CompCard({ comp, reasons, lobby = [], defaultOpen = false }) {
                 <span className="curve-tier">⭐{t}</span>
                 <span>
                   {byTier[t].map((k) => (
-                    <span key={k.id} className={k.status === 'CORE' ? 'core' : 'muted'}>
+                    <CardName key={k.id} m={k.m} className={k.status === 'CORE' ? 'core' : 'muted'}>
                       {k.m.zh}
-                      {k.status === 'CORE' ? '' : '（配件）'}{' '}
-                    </span>
+                      {k.status === 'CORE' ? '' : '（配件）'}
+                    </CardName>
                   ))}
                 </span>
               </div>
