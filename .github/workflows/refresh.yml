@@ -1,0 +1,12 @@
+# 可选：每天自动让 Vercel 重新部署一次（部署时会重新拉取数据）
+# 使用前在 GitHub 仓库 Settings → Secrets 里添加 VERCEL_DEPLOY_HOOK（Vercel 项目 Settings → Git → Deploy Hooks 生成）
+name: refresh-data
+on:
+  schedule:
+    - cron: '0 20 * * *' # 每天北京时间 04:00
+  workflow_dispatch:
+jobs:
+  redeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl -fsS -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"

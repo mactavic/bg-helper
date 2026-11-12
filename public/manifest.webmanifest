@@ -1,0 +1,11 @@
+{
+  "name": "酒馆战棋助手",
+  "short_name": "战棋助手",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#17130f",
+  "theme_color": "#17130f",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
